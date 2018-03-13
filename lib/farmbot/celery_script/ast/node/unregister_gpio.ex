@@ -4,11 +4,8 @@ defmodule Farmbot.CeleryScript.AST.Node.UnregisterGpio do
   allow_args [:pin_number]
   use Farmbot.Logger
 
-  def execute(%{pin_number: pin_num}, _, env) do
+  def execute(_, _, env) do
     env = mutate_env(env)
-    case Farmbot.System.GPIO.unregister_pin(pin_num)do
-      :ok -> {:ok, env}
-      {:error, reason} -> {:error, reason, env}
-    end
+    {:error, "UnregisterGpio is depricated. Please use the `/api/pin_bindings` endpoint.", env}
   end
 end

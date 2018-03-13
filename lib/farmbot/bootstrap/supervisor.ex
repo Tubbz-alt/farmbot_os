@@ -127,6 +127,7 @@ defmodule Farmbot.Bootstrap.Supervisor do
           worker(Farmbot.Bootstrap.AuthTask,                []),
           supervisor(Farmbot.HTTP.Supervisor,               []),
           worker(Farmbot.Bootstrap.SettingsSync,            []),
+          supervisor(Farmbot.GPIO.Supervisor,               []),
           supervisor(Farmbot.Firmware.Supervisor,           []),
           supervisor(Farmbot.BotState.Supervisor,           []),
           supervisor(Farmbot.BotState.Transport.Supervisor, []),

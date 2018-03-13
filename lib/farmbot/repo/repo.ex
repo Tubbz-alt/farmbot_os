@@ -7,6 +7,7 @@ defmodule Farmbot.Repo do
   alias Farmbot.Asset.{
     Device,
     FarmEvent,
+    PinBinding,
     Peripheral,
     Point,
     Regimen,
@@ -236,7 +237,8 @@ defmodule Farmbot.Repo do
          Farmbot.Firmware.read_pin(pin, mode)
        end)
 
-    Farmbot.FarmEvent.Manager.register_events repo.all(Farmbot.Asset.FarmEvent)
+    Farmbot.FarmEvent.Manager.register_events repo.all(FarmEvent)
+    Farmbot.GPIO.register_gpios repo.all(PinBinding)
     :ok
   end
 
@@ -388,33 +390,36 @@ defmodule Farmbot.Repo do
   defp do_http_requests do
     initial_err = {:error, :request_not_started}
     acc = %{
-      Device => initial_err,
-      FarmEvent => initial_err,
+      Device     => initial_err,
+      FarmEvent  => initial_err,
+      PinBinding => initial_err,
       Peripheral => initial_err,
-      Point => initial_err,
-      Regimen => initial_err,
-      Sensor => initial_err,
-      Sequence => initial_err,
-      Tool => initial_err,
+      Point      => initial_err,
+      Regimen    => initial_err,
+      Sensor     => initial_err,
+      Sequence   => initial_err,
+      Tool       => initial_err,
     }
 
-    device_task      = Task.async(__MODULE__, :do_get_resource, [Device, "/api/device"])
-    farm_events_task = Task.async(__MODULE__, :do_get_resource, [FarmEvent, "/api/farm_events"])
-    peripherals_task = Task.async(__MODULE__, :do_get_resource, [Peripheral, "/api/peripherals"])
-    points_task      = Task.async(__MODULE__, :do_get_resource, [Point, "/api/points"])
-    regimens_task    = Task.async(__MODULE__, :do_get_resource, [Regimen, "/api/regimens"])
-    sensors_task     = Task.async(__MODULE__, :do_get_resource, [Sensor, "/api/sensors"])
-    sequences_task   = Task.async(__MODULE__, :do_get_resource, [Sequence, "/api/sequences"])
-    tools_task       = Task.async(__MODULE__, :do_get_resource, [Tool, "/api/tools"])
+    device_task       = Task.async(__MODULE__, :do_get_resource, [Device, "/api/device"])
+    farm_events_task  = Task.async(__MODULE__, :do_get_resource, [FarmEvent, "/api/farm_events"])
+    pin_bindings_task = Task.async(__MODULE__, :do_get_resource, [Peripheral, "/api/pin_bindings"])
+    peripherals_task  = Task.async(__MODULE__, :do_get_resource, [Peripheral, "/api/peripherals"])
+    points_task       = Task.async(__MODULE__, :do_get_resource, [Point, "/api/points"])
+    regimens_task     = Task.async(__MODULE__, :do_get_resource, [Regimen, "/api/regimens"])
+    sensors_task      = Task.async(__MODULE__, :do_get_resource, [Sensor, "/api/sensors"])
+    sequences_task    = Task.async(__MODULE__, :do_get_resource, [Sequence, "/api/sequences"])
+    tools_task        = Task.async(__MODULE__, :do_get_resource, [Tool, "/api/tools"])
     res = %{acc |
-      Device => Task.await(device_task, 30_000),
-      FarmEvent => Task.await(farm_events_task, 30_000),
+      Device     => Task.await(device_task, 30_000),
+      FarmEvent  => Task.await(farm_events_task, 30_000),
+      PinBinding => Task.await(pin_bindings_task, 30_000),
       Peripheral => Task.await(peripherals_task, 30_000),
-      Point => Task.await(points_task, 30_000),
-      Regimen => Task.await(regimens_task, 30_000),
-      Sensor => Task.await(sensors_task, 30_000),
-      Sequence => Task.await(sequences_task, 30_000),
-      Tool => Task.await(tools_task, 30_000),
+      Point      => Task.await(points_task, 30_000),
+      Regimen    => Task.await(regimens_task, 30_000),
+      Sensor     => Task.await(sensors_task, 30_000),
+      Sequence   => Task.await(sequences_task, 30_000),
+      Tool       => Task.await(tools_task, 30_000),
     }
     {:ok, res}
   end
@@ -431,6 +436,7 @@ defmodule Farmbot.Repo do
   defp do_sync_all_resources(repo, cache) do
     with :ok <- sync_resource(repo, Device, cache),
          :ok <- sync_resource(repo, FarmEvent, cache),
+         :ok <- sync_resource(repo, PinBinding, cache),
          :ok <- sync_resource(repo, Peripheral, cache),
          :ok <- sync_resource(repo, Point, cache),
          :ok <- sync_resource(repo, Regimen, cache),

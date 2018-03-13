@@ -28,7 +28,6 @@ defmodule Farmbot.System.Supervisor do
 
     after_init_children = [
       supervisor(Farmbot.System.Updates, []),
-      worker(Farmbot.System.GPIO, []),
       worker(Farmbot.EasterEggs, [])
     ]
 

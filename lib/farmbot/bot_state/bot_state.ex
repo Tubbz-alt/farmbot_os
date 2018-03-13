@@ -146,7 +146,7 @@ defmodule Farmbot.BotState do
     info_settings = %{initial_state.informational_settings | node_name: node()}
     state = %{initial_state | informational_settings: info_settings}
     gen_stage_opts = [
-      subscribe_to: [Firmware, ConfigStorage.Dispatcher, Farmbot.System.GPIO],
+      subscribe_to: [Firmware, ConfigStorage.Dispatcher, Farmbot.GPIO],
       dispatcher: GenStage.BroadcastDispatcher
     ]
     {:producer_consumer, state, gen_stage_opts}

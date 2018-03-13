@@ -5,6 +5,7 @@ defmodule Farmbot.Asset do
 
   alias Farmbot.Asset
   alias Asset.{
+    PinBinding,
     Peripheral,
     Point,
     Sensor,
@@ -65,6 +66,10 @@ defmodule Farmbot.Asset do
       nil -> raise "Could not find regimen by id #{regimen_id}"
       %Regimen{} = reg -> reg
     end
+  end
+
+  def all_pin_bindings do
+    repo().all(PinBinding)
   end
 
   defp repo, do: Farmbot.Repo.current_repo()
