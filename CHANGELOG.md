@@ -9,6 +9,8 @@
 * Fix bug causing false positives on sync failure.
 * Fix bug causing a captive portal staying up if the user chooses a wired network connection.
 * Fix bug that prevented a user from configuring network credentials.
+* Add new syncable `PinBinding`
+  * This just stores `GPIORegistry` in the Farmbot API instead of only on the device.
 * Add new syncable `Sensor`.
 * Add new celeryscript node `NamedPin`.
 * Add new args:
