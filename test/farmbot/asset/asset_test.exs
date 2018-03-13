@@ -1,7 +1,7 @@
 defmodule Farmbot.AssetTest do
   use ExUnit.Case, async: false
   alias Farmbot.Asset
-  alias Asset.{Sensor, Peripheral, Sequence, Tool, Point}
+  alias Asset.{Sensor, Peripheral, Sequence, Tool, Point, PinBinding}
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(Farmbot.Repo.current_repo())
@@ -44,7 +44,7 @@ defmodule Farmbot.AssetTest do
     assert Asset.get_sequence_by_id!(s.id) == s
   end
 
-  test "Raises if no sequence", %{repo: repo} do
+  test "Raises if no sequence", %{repo: _repo} do
     assert_raise RuntimeError, fn() ->
       Asset.get_sequence_by_id!(1000)
     end
@@ -85,5 +85,19 @@ defmodule Farmbot.AssetTest do
 
   defp point(id, name, tool_id, x, y, z, meta, pointer_type) do
     %Point{id: id, name: name, tool_id: tool_id, x: x, y: y, z: z, meta: meta, pointer_type: pointer_type}
+  end
+
+  test "Gets all PinBindings", %{repo: repo} do
+    sequence(500, "Dig hole", "sequence", %{}, []) |> repo.insert!()
+    sequence(501, "Fill hole", "sequence", %{}, []) |> repo.insert!()
+    one = pin_binding(1, 500) |> repo.insert!()
+    two = pin_binding(2, 500) |> repo.insert!()
+    all = Asset.all_pin_bindings()
+    assert one in all
+    assert two in all
+  end
+
+  defp pin_binding(pin, sequence_id) do
+    %PinBinding{pin_num: pin, sequence_id: sequence_id}
   end
 end

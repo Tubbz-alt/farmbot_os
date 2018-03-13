@@ -40,7 +40,7 @@ defmodule Farmbot.System.GPIO.StubHandler do
       nil -> {:reply, :error, [], state}
       :enabled ->
         send self(), {:do_test_fire, pin}
-        {:reply, :ok, [], state}
+        {:reply, pin, [], state}
     end
   end
 

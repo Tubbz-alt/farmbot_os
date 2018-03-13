@@ -52,3 +52,14 @@ config :farmbot, Farmbot.System.ConfigStorage,
   loggers: []
 
 config :farmbot, ecto_repos: [Farmbot.Repo.A, Farmbot.Repo.B, Farmbot.System.ConfigStorage]
+
+config :logger, [
+  # utc_log: true,
+  handle_otp_reports: true,
+  handle_sasl_reports: true,
+  backends: []
+]
+
+config :farmbot, :logger, [
+  backends: [TestIOLogger]
+]
