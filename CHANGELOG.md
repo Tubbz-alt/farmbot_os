@@ -1,4 +1,5 @@
-# 6.4.0-dev
+# 6.4.0
+* Update Regimens to persist reboots.
 
 # 6.3.1
 * Fix bug causing FarmEvents not to work.

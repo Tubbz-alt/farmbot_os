@@ -7,13 +7,40 @@ defmodule Farmbot.Asset do
   alias Asset.{
     Peripheral,
     Point,
+    PersistentRegimen,
     Sensor,
     Sequence,
     Regimen,
     Tool
   }
+  alias Farmbot.System.ConfigStorage
 
   import Ecto.Query
+
+  @doc "Gets all Regimens that should be running."
+  def all_persistent_regimens do
+    ConfigStorage.all(PersistentRegimen)
+  end
+
+  def add_persistent_regimen(regimen, time) do
+    %PersistentRegimen{}
+    |> PersistentRegimen.changeset(%{regimen_id: regimen.id, time: time})
+    |> ConfigStorage.insert()
+  end
+
+  def delete_persistent_regimen(regimen) do
+    pr = get_persistent_regimen(regimen)
+    if pr do
+      ConfigStorage.delete(pr)
+    else
+      {:error, "Could not find Persistent Regimen info for #{regimen.name}"}
+    end
+  end
+
+  def get_persistent_regimen(regimen) do
+    rid = regimen.id
+    ConfigStorage.one(from pr in PersistentRegimen, where: pr.regimen_id == ^rid)
+  end
 
   @doc "Get a Peripheral by it's id."
   def get_peripheral_by_id(peripheral_id) do
