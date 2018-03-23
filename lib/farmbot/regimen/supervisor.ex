@@ -26,6 +26,15 @@ defmodule Farmbot.Regimen.Supervisor do
     end
   end
 
+  def reindex_regimens(regimens) do
+    Enum.map(regimens, fn(regimen) ->
+      pid = Process.whereis(:"regimen-#{regimen.id}")
+      if pid do
+        Farmbot.Regimen.Manager.reindex(pid, regimen)
+      end
+    end)
+  end
+
   def remove_child(regimen) do
     Supervisor.terminate_child(__MODULE__, regimen.id)
     Supervisor.delete_child(__MODULE__, regimen.id)

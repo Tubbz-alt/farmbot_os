@@ -38,6 +38,10 @@ defmodule Farmbot.Regimen.Manager do
     def fetch_sequence(id), do: Asset.get_sequence_by_id!(id)
   end
 
+  def reindex(pid, regimen) do
+    GenServer.call(pid, {:reindex, regimen})
+  end
+
   @doc false
   def start_link(regimen, time) do
     GenServer.start_link(__MODULE__, [regimen, time], name: :"regimen-#{regimen.id}")
@@ -66,6 +70,19 @@ defmodule Farmbot.Regimen.Manager do
       Logger.warn 2, "[#{regimen.name}] has no items on regimen."
       :ignore
     end
+  end
+
+  def handle_call({:reindex, regimen}, _, state) do
+    Logger.info 1, "Reindexing #{regimen.name}"
+    items         = filter_items(regimen)
+    regimen       = %{regimen | regimen_items: items}
+    next_state = %{
+      next_execution: state.next_execution,
+      regimen:        regimen,
+      epoch:          state.epoch,
+      timer:          state.timer
+    }
+    {:reply, :ok, next_state}
   end
 
   def handle_info(:execute, state) do
