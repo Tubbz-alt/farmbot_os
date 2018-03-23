@@ -72,6 +72,12 @@ defmodule Farmbot.Regimen.Manager do
     end
   end
 
+  def terminate(reason, state) do
+    if reason in [:normal, :shutdown] do
+      Farmbot.Asset.delete_persistent_regimen(state.regimen)
+    end
+  end
+
   def handle_call({:reindex, regimen}, _, state) do
     Logger.info 1, "Reindexing #{regimen.name}"
     Process.cancel_timer(state.timer)
