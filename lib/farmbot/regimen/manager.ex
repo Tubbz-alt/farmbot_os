@@ -74,15 +74,23 @@ defmodule Farmbot.Regimen.Manager do
 
   def handle_call({:reindex, regimen}, _, state) do
     Logger.info 1, "Reindexing #{regimen.name}"
+    Process.cancel_timer(state.timer)
     items         = filter_items(regimen)
+    first_item    = List.first(items)
     regimen       = %{regimen | regimen_items: items}
-    next_state = %{
+    initial_state = %{
       next_execution: state.next_execution,
       regimen:        regimen,
       epoch:          state.epoch,
-      timer:          state.timer
+      timer:          nil
     }
-    {:reply, :ok, next_state}
+    if first_item do
+      next_state = build_next_state(regimen, first_item, self(), initial_state)
+      {:reply, :ok, next_state}
+    else
+      Logger.warn 2, "[#{regimen.name}] has no items on regimen."
+      {:stop, :ok, :ok, initial_state}
+    end
   end
 
   def handle_info(:execute, state) do
